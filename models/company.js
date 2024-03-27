@@ -50,12 +50,38 @@ class Company {
     return company;
   }
 
+
+  //TODO: add docstring
+  static _filterByQuery({nameLike, minEmployees, maxEmployees}) {
+    let whereStatements = [];
+
+    if(minEmployees) {
+      whereStatements.push(` num_employees >= ${minEmployees}`);
+    }
+
+    if(maxEmployees) {
+      whereStatements.push(` num_employees <= ${maxEmployees}`);
+    }
+
+    if(nameLike) {
+      whereStatements.push( ` name ILIKE '%${nameLike}%'`);
+    }
+
+    if(whereStatements.length > 0) {
+      return "WHERE" + whereStatements.join(" AND ")
+    } //TODO: try returning an object with the sting clause and the array of sql injection params
+  }
+
+
+
+
   /** Find all companies.
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
   static async findAll() {
+
     const companiesRes = await db.query(`
         SELECT handle,
                name,
@@ -66,6 +92,27 @@ class Company {
         ORDER BY name`);
     return companiesRes.rows;
   }
+
+  static async findFiltered(params) { //TODO: use one function to find
+    let whereClause = ""
+    if(params) {
+      whereClause = Company.filterByQuery(params);
+    }
+
+    console.log(whereClause)
+
+    const companiesRes = await db.query(`
+        SELECT handle,
+               name,
+               description,
+               num_employees AS "numEmployees",
+               logo_url      AS "logoUrl"
+        FROM companies
+        ORDER BY name`,[whereClause]);
+    return companiesRes.rows;
+  }
+
+
 
   /** Given a company handle, return data about company.
    *
@@ -91,6 +138,14 @@ class Company {
 
     return company;
   }
+
+
+
+
+
+
+
+
 
   /** Update company data with `data`.
    *
