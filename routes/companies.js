@@ -58,8 +58,9 @@ router.get("/", async function (req, res, next) {
     const errs = result.errors.map(err => err.stack);
     throw new BadRequestError(errs);
   }
+
   const companies = await Company.findAll(req.query);
-  return res.json({ companies });
+  return res.json({ companies }); //TODO: convert min/max queries to ints
 });
 
 /** GET /[handle]  =>  { company }

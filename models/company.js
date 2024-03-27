@@ -64,7 +64,6 @@ class Company {
     let searchParams = [];
     let whereClause = '';
 
-
     if (minEmployees) {
       searchParams.push(minEmployees);
       whereStatements.push(` num_employees >= $${searchParams.length}`);
@@ -89,18 +88,20 @@ class Company {
     return filteredSearchObj;
   }
 
-
-
-
   /** Find all companies.
    *  Option to filter by query params.
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll(params) {
+  static async findAll(params = {}) {
+
+    if(Number(params.minEmployees) > Number(params.maxEmployees)) {
+      throw new BadRequestError("minEmployees must be less than maxEmployees");
+    }
+
     const { whereClause, searchParams } = Company._filterByQuery(params);
-    console.log(whereClause);
+
     const companiesRes = await db.query(`
         SELECT handle,
                name,

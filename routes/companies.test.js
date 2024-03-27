@@ -95,6 +95,131 @@ describe("GET /companies", function () {
         ],
     });
   });
+
+
+
+  test("test with name filter", async function () {
+    const resp = await request(app)
+      .get("/companies")
+      .query({ nameLike: "C1" });
+    expect(resp.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c1",
+            name: "C1",
+            description: "Desc1",
+            numEmployees: 1,
+            logoUrl: "http://c1.img",
+          }
+        ],
+    });
+  });
+
+
+  test("test with min and max employees", async function () {
+    const resp = await request(app)
+      .get("/companies")
+      .query({
+        minEmployees: "2",
+        maxEmployees: "3"
+      });
+    expect(resp.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c2",
+            name: "C2",
+            description: "Desc2",
+            numEmployees: 2,
+            logoUrl: "http://c2.img",
+          },
+          {
+            handle: "c3",
+            name: "C3",
+            description: "Desc3",
+            numEmployees: 3,
+            logoUrl: "http://c3.img",
+          }
+        ],
+    });
+  });
+
+
+  test("test with min and max employees and name", async function () {
+    const resp = await request(app)
+      .get("/companies")
+      .query({
+        minEmployees: "2",
+        maxEmployees: "3",
+        nameLike: "C3"
+      });
+    expect(resp.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c3",
+            name: "C3",
+            description: "Desc3",
+            numEmployees: 3,
+            logoUrl: "http://c3.img",
+          }
+        ],
+    });
+  });
+
+
+  test("test with query that gives nothing", async function () {
+    const resp = await request(app)
+      .get("/companies")
+      .query({
+        minEmployees: "700",
+        maxEmployees: "3000",
+        nameLike: "C3"
+      });
+    expect(resp.body).toEqual({
+      companies:
+        [],
+    });
+  });
+
+
+  test("test with min > max", async function () {
+    const resp = await request(app)
+      .get("/companies")
+      .query({
+        minEmployees: "4",
+        maxEmployees: "1",
+        nameLike: "C"
+      });
+    expect(resp.body).toEqual({
+      error: {
+        "message": "minEmployees must be less than maxEmployees",
+        "status": 400,
+      }
+    });
+  });
+
+
+  test("test with non number min", async function () {
+    const resp = await request(app)
+      .get("/companies")
+      .query({
+        minEmployees: "Lol",
+      });
+    expect(resp.body).toEqual({
+      error: {
+        "message": ["instance.minEmployees does not match pattern \"[0-9]\""],
+        "status": 400,
+      }
+    });
+  });
+
+
+
+
+
+
 });
 
 /************************************** GET /companies/:handle */
