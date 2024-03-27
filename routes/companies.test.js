@@ -209,16 +209,28 @@ describe("GET /companies", function () {
       });
     expect(resp.body).toEqual({
       error: {
-        "message": ["instance.minEmployees does not match pattern \"[0-9]\""],
+        "message": ["instance.minEmployees is not of a type(s) integer"],
         "status": 400,
       }
     });
   });
 
-
-
-
-
+  test("test with extra value", async function () {
+    const resp = await request(app)
+      .get("/companies")
+      .query({
+        minEmployees: "2",
+        extraValue: "yo"
+      });
+    expect(resp.body).toEqual({
+      error: {
+        "message": [
+          "instance is not allowed to have the additional property \"extraValue\""
+        ],
+        "status": 400,
+      }
+    });
+  });
 
 });
 

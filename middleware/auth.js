@@ -41,7 +41,34 @@ function ensureLoggedIn(req, res, next) {
 }
 
 
+/**
+ * Middleware to ensure current user is admin for protected routes.
+ *
+ * If not, raises Unauthorized.
+ */
+
+function isAdmin(req, res, next) {
+  if (res.locals.user?.is_admin === true && res.locals.user?.username) return next();
+  throw new UnauthorizedError();
+}
+
+
+/** Middleware: Requires user is user for route. */
+
+function ensureCorrectUserOrAdmin(req, res, next) {
+  const currentUser = res.locals.user;
+  const hasAuthorizedUsername = currentUser?.username === req.params.username;
+
+  if (hasAuthorizedUsername || currentUser.is_admin === true) {
+    return next();
+  }
+  throw new UnauthorizedError();
+}
+
+
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
+  isAdmin,
+  ensureCorrectUserOrAdmin
 };

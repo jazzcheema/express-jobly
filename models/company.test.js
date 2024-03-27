@@ -1,7 +1,7 @@
 "use strict";
 
 const db = require("../db.js");
-const { BadRequestError, NotFoundError } = require("../expressError");
+const { BadRequestError, NotFoundError, UnauthorizedError } = require("../expressError");
 const Company = require("./company.js");
 const {
   commonBeforeAll,
@@ -173,9 +173,10 @@ describe("findAll", function () {
         minEmployees: "2",
         maxEmployees: "1"
       });
-      //TODO: throw an error here to hit the catch
-    } catch(err) { //TODO: check the type of error (badRequestError)
+      throw new UnauthorizedError();
+    } catch (err) {
       expect(err.message).toEqual("minEmployees must be less than maxEmployees");
+      expect(err instanceof BadRequestError).toEqual(true);
     }
   });
 });
