@@ -38,12 +38,12 @@ class Company {
                     description,
                     num_employees AS "numEmployees",
                     logo_url AS "logoUrl"`, [
-          handle,
-          name,
-          description,
-          numEmployees,
-          logoUrl,
-        ],
+      handle,
+      name,
+      description,
+      numEmployees,
+      logoUrl,
+    ],
     );
     const company = result.rows[0];
 
@@ -51,37 +51,56 @@ class Company {
   }
 
 
-  //TODO: add docstring
-  static _filterByQuery({nameLike, minEmployees, maxEmployees}) {
+  /**
+   * Takes three search parameters to use as filter methods for the company
+   * database.
+   * Adds clauses based on optional search parameters, and returns an object
+   * Returns ->
+   * {whereClause: WHERE num_employees >= $1... ,
+   * searchParams: [200, ...] }
+   */
+  static _filterByQuery({ nameLike, minEmployees, maxEmployees }) {
     let whereStatements = [];
+    let searchParams = [];
+    let whereClause = '';
 
-    if(minEmployees) {
-      whereStatements.push(` num_employees >= ${minEmployees}`);
+
+    if (minEmployees) {
+      searchParams.push(minEmployees);
+      whereStatements.push(` num_employees >= $${searchParams.length}`);
     }
 
-    if(maxEmployees) {
-      whereStatements.push(` num_employees <= ${maxEmployees}`);
+    if (maxEmployees) {
+      searchParams.push(maxEmployees);
+      whereStatements.push(` num_employees <= $${searchParams.length}`);
     }
 
-    if(nameLike) {
-      whereStatements.push( ` name ILIKE '%${nameLike}%'`);
+    if (nameLike) {
+      searchParams.push(`%${nameLike}%`);
+      whereStatements.push(` name ILIKE $${searchParams.length}`);
     }
 
-    if(whereStatements.length > 0) {
-      return "WHERE" + whereStatements.join(" AND ")
-    } //TODO: try returning an object with the sting clause and the array of sql injection params
+    if (whereStatements.length > 0) {
+      whereClause += "WHERE" + whereStatements.join(" AND ");
+    }
+    const filteredSearchObj = {
+      whereClause, searchParams
+    };
+    return filteredSearchObj;
   }
 
 
 
 
   /** Find all companies.
+   *  Option to filter by query params.
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll() {
-
+  static async findAll(params) {
+    const { whereClause, searchParams } = Company._filterByQuery(params);
+    console.log(whereClause);
     const companiesRes = await db.query(`
         SELECT handle,
                name,
@@ -89,26 +108,8 @@ class Company {
                num_employees AS "numEmployees",
                logo_url      AS "logoUrl"
         FROM companies
-        ORDER BY name`);
-    return companiesRes.rows;
-  }
-
-  static async findFiltered(params) { //TODO: use one function to find
-    let whereClause = ""
-    if(params) {
-      whereClause = Company.filterByQuery(params);
-    }
-
-    console.log(whereClause)
-
-    const companiesRes = await db.query(`
-        SELECT handle,
-               name,
-               description,
-               num_employees AS "numEmployees",
-               logo_url      AS "logoUrl"
-        FROM companies
-        ORDER BY name`,[whereClause]);
+        ${whereClause}
+        ORDER BY name`, searchParams);
     return companiesRes.rows;
   }
 
@@ -161,11 +162,11 @@ class Company {
 
   static async update(handle, data) {
     const { setCols, values } = sqlForPartialUpdate(
-        data,
-        {
-          numEmployees: "num_employees",
-          logoUrl: "logo_url",
-        });
+      data,
+      {
+        numEmployees: "num_employees",
+        logoUrl: "logo_url",
+      });
     const handleVarIdx = "$" + (values.length + 1);
 
     const querySql = `
