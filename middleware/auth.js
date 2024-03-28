@@ -46,23 +46,22 @@ function ensureLoggedIn(req, res, next) {
  *
  * If not, raises Unauthorized.
  */
-
+//FIXME: ensureAdmin
 function isAdmin(req, res, next) {
   if (res.locals.user?.username && res.locals.user?.isAdmin === true) {
     return next();
   }
-
   throw new UnauthorizedError();
 }
 
 
-/** Middleware: Requires user is user for route. */
+/** Middleware: Requires user or admin for route. */
 
 function ensureCorrectUserOrAdmin(req, res, next) {
   const currentUser = res.locals.user;
   const hasAuthorizedUsername = currentUser?.username === req.params.username;
 
-  if (hasAuthorizedUsername || currentUser.isAdmin === true) {
+  if (hasAuthorizedUsername || currentUser?.isAdmin === true) {
     return next();
   }
   throw new UnauthorizedError();

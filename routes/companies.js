@@ -112,7 +112,7 @@ router.patch("/:handle", isAdmin, async function (req, res, next) {
 
 /** DELETE /[handle]  =>  { deleted: handle }
  *
- * Authorization: login
+ * Authorization: Admin
  */
 
 router.delete("/:handle", isAdmin, async function (req, res, next) {

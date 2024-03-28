@@ -28,7 +28,6 @@ const router = express.Router();
  **/
 
 router.post("/", isAdmin, async function (req, res, next) {
-  console.log(res.locals.user.username)
   const validator = jsonschema.validate(
     req.body,
     userNewSchema,

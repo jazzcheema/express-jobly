@@ -5,6 +5,10 @@ const request = require("supertest");
 const db = require("../db");
 const app = require("../app");
 
+
+//TODO: change var names of tokens to be more specific (admin, user)
+
+
 const {
   commonBeforeAll,
   commonBeforeEach,
@@ -310,7 +314,7 @@ describe("PATCH /companies/:handle", function () {
     });
   });
 
-  test("does not work for users", async function () {
+  test("does not work for users (non-admins)", async function () {
     const resp = await request(app)
       .patch(`/companies/c1`)
       .send({
