@@ -19,9 +19,9 @@ const router = new express.Router();
 
 /** POST / { job } =>  { job }
  *
- * job should be { title, salary, equity, company_handle }
+ * job should be { title, salary, companyHandle }
  *
- * Returns { id, title, salary, equity, company_handle }
+ * Returns { id, title, salary, equity, companyHandle }
  *
  * Authorization required: Admin
  */
@@ -60,9 +60,15 @@ router.get("/", async function (req, res, next) {
   if (queries.minSalary) {
     queries.minSalary = Number(queries.minSalary);
   }
-  if (queries.hasEquity === "true" || queries.hasEquity === "True") {
-    queries.hasEquity = true;
+  if (queries.hasEquity) {
+    if (queries.hasEquity.toLowerCase() === "true") {
+      queries.hasEquity = true;
+    } else if (queries.hasEquity.toLowerCase() === "false") {
+      queries.hasEquity = false;
+    }
   }
+
+
 
   const result = jsonschema.validate(queries, jobSearchSchema, { required: true });
 

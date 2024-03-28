@@ -3,7 +3,10 @@
 const db = require("../db.js");
 const User = require("../models/user");
 const Company = require("../models/company");
+const Job = require("../models/job");
 const { createToken } = require("../helpers/tokens");
+
+const jobIds = [];
 
 async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
@@ -60,6 +63,27 @@ async function commonBeforeAll() {
     password: "password3",
     isAdmin: false,
   });
+  const herder = await Job.create({
+    title: "Cow Herder",
+    salary: 95000,
+    equity: "0.15",
+    companyHandle: "c1"
+  });
+  const janitor = await Job.create({
+    title: "Janitor",
+    salary: 32000,
+    equity: "0",
+    companyHandle: "c2"
+  });
+  const ceo = await Job.create({
+    title: "CEO",
+    salary: 729000,
+    equity: "0.9",
+    companyHandle: "c3"
+  });
+  jobIds.push(herder.id);
+  jobIds.push(janitor.id);
+  jobIds.push(ceo.id);
 }
 
 async function commonBeforeEach() {
@@ -78,6 +102,15 @@ async function commonAfterAll() {
 const adminToken = createToken({ username: "u1", isAdmin: true });
 const userToken = createToken({ username: "u2", isAdmin: false });
 
+// const herder = await Job.findAll({ title: "herder" });
+// const herderId = herder.rows[0].id;
+
+// const janitor = await Job.findAll({ title: "jan" });
+// const janitorId = janitor.rows[0].id;
+
+// const ceo = await Job.findAll({ title: "ceo" });
+// const ceoId = ceo.rows[0].id;
+
 
 module.exports = {
   commonBeforeAll,
@@ -86,4 +119,5 @@ module.exports = {
   commonAfterAll,
   adminToken,
   userToken,
+  jobIds
 };

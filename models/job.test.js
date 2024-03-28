@@ -35,7 +35,7 @@ describe("create", function () {
     title: "royal mail man",
     salary: 75000,
     equity: 0.1,
-    company_handle: "c2"
+    companyHandle: "c2"
   };
 
   test("can create job", async function () {
@@ -55,7 +55,7 @@ describe("create", function () {
         title: "janitor",
         salary: 1000,
         equity: 0.0,
-        company_handle: "IBM"
+        companyHandle: "IBM"
       });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
@@ -69,7 +69,7 @@ describe("create", function () {
         title: "janitor",
         salary: 1000,
         equity: 2.0,
-        company_handle: "c2"
+        companyHandle: "c2"
       });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
@@ -83,7 +83,7 @@ describe("create", function () {
         title: "janitor",
         salary: -10,
         equity: 0.0,
-        company_handle: "c2"
+        companyHandle: "c2"
       });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {

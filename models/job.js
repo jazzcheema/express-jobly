@@ -17,15 +17,15 @@ class Job {
    *
    * Company needs to exist before creating a job.
    * */
-  static async create({ title, salary, equity, company_handle }) {
+  static async create({ title, salary, equity, companyHandle }) {
 
     const checkCompanyExistence = await db.query(`
     SELECT handle
     FROM companies
-    WHERE handle = $1`, [company_handle]);
+    WHERE handle = $1`, [companyHandle]);
 
     if (!checkCompanyExistence.rows[0])
-      throw new BadRequestError(`Company does not exist: ${company_handle}`);
+      throw new BadRequestError(`Company does not exist: ${companyHandle}`);
 
     const result = await db.query(`
                 INSERT INTO jobs (title,
@@ -43,7 +43,7 @@ class Job {
         title,
         salary,
         equity,
-        company_handle,
+        companyHandle,
       ],
     );
     const job = result.rows[0];
