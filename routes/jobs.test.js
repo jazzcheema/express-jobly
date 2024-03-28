@@ -58,6 +58,12 @@ describe("POST /jobs", function () {
         companyHandle: "c1"
       });
     expect(resp.statusCode).toEqual(401);
+    expect(resp.body).toEqual({
+      error: {
+        message: "Unauthorized",
+        status: 401
+      }
+    });
   });
 
   test("does not work for non-admins", async function () {
@@ -71,6 +77,12 @@ describe("POST /jobs", function () {
       })
       .set("authorization", `Bearer ${userToken}`);
     expect(resp.statusCode).toEqual(401);
+    expect(resp.body).toEqual({
+      error: {
+        message: "Unauthorized",
+        status: 401
+      }
+    });
   });
 
   test("does not work with invalid data", async function () {
@@ -234,13 +246,135 @@ describe("GET /jobs/:id", function () {
       }
     });
   });
-
-
-
-
-
-
-
-
-
 });
+
+
+/************************************** PATCH /jobs/:id */
+
+
+describe("PATCH /jobs/:id", function () {
+  test("edit a job as an admin", async function () {
+    const resp = await request(app)
+      .patch(`/jobs/${jobIds[0]}`)
+      .send({
+        title: "Master Cow Herder",
+      })
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual({
+      job: {
+        id: jobIds[0],
+        title: "Master Cow Herder",
+        salary: 95000,
+        equity: "0.15",
+        companyHandle: "c1"
+      }
+    });
+  });
+
+  test("cannot edit job if anon (not logged in)", async function () {
+    const resp = await request(app)
+      .patch(`/jobs/${jobIds[0]}`)
+      .send({
+        title: "Master Cow Herder",
+      });
+    expect(resp.body).toEqual({
+      error: {
+        message: "Unauthorized",
+        status: 401
+      }
+    });
+  });
+
+  test("cannot edit job if user (non-admin)", async function () {
+    const resp = await request(app)
+      .patch(`/jobs/${jobIds[0]}`)
+      .send({
+        title: "Master Cow Herder",
+      })
+      .set("authorization", `Bearer ${userToken}`);
+    expect(resp.body).toEqual({
+      error: {
+        message: "Unauthorized",
+        status: 401
+      }
+    });
+  });
+
+  test("can't edit a job that doesn't exist", async function () {
+    const resp = await request(app)
+      .patch(`/jobs/0`)
+      .send({
+        title: "Master Cow Herder",
+      })
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual({
+      error: {
+        message: "No job: 0",
+        status: 404
+      }
+    });
+  });
+
+  test("cannot edit job with bad data", async function () {
+    const resp = await request(app)
+      .patch(`/jobs/0`)
+      .send({
+        hasInsurance: true,
+      })
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.status).toEqual(400);
+  });
+});
+
+
+
+/************************************** DELETE /jobs/:id */
+
+describe("DELETE /jobs/:id", function () {
+  test("delete a job as admin", async function () {
+    const resp = await request(app)
+      .delete(`/jobs/${jobIds[0]}`)
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual({
+      deleted: `${jobIds[0]}`
+    });
+  });
+
+
+  test("cannot delete job as anon (not logged in)", async function () {
+    const resp = await request(app)
+      .delete(`/jobs/${jobIds[0]}`);
+    expect(resp.body).toEqual({
+      error: {
+        message: "Unauthorized",
+        status: 401
+      }
+    });
+  });
+
+
+  test("cannot delete job as user (non-admin)", async function () {
+    const resp = await request(app)
+      .delete(`/jobs/${jobIds[0]}`)
+      .set("authorization", `Bearer ${userToken}`);
+    expect(resp.body).toEqual({
+      error: {
+        message: "Unauthorized",
+        status: 401
+      }
+    });
+  });
+
+  test("cannot delete a job that doesn't exist", async function () {
+    const resp = await request(app)
+      .delete(`/jobs/0`)
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual({
+      error: {
+        message: "No job: 0",
+        status: 404
+      }
+    });
+  });
+});
+

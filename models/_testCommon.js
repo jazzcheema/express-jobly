@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const db = require("../db.js");
 const { BCRYPT_WORK_FACTOR } = require("../config");
 
-const ids = [];
+const jobIds = [];
 
 
 async function commonBeforeAll() {
@@ -42,8 +42,8 @@ async function commonBeforeAll() {
   VALUES ('Janitor', 80000, '0', 'c1'),
          ('CEO', 30000, 0.9, 'c3')
   RETURNING id`);
-  ids.push(result.rows[0].id);
-  ids.push(result.rows[1].id);
+  jobIds.push(result.rows[0].id);
+  jobIds.push(result.rows[1].id);
 }
 
 
@@ -66,5 +66,5 @@ module.exports = {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  ids
+  jobIds
 };

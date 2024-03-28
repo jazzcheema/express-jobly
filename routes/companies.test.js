@@ -14,6 +14,7 @@ const {
   commonAfterAll,
   adminToken,
   userToken,
+  jobIds
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -266,6 +267,15 @@ describe("GET /companies/:handle", function () {
         description: "Desc1",
         numEmployees: 1,
         logoUrl: "http://c1.img",
+        jobs: [
+          {
+            companyHandle: "c1",
+            equity: "0.15",
+            id: jobIds[0],
+            salary: 95000,
+            title: "Cow Herder",
+          }
+        ]
       },
     });
   });
@@ -279,6 +289,15 @@ describe("GET /companies/:handle", function () {
         description: "Desc2",
         numEmployees: 2,
         logoUrl: "http://c2.img",
+        jobs: [
+          {
+            companyHandle: "c2",
+            equity: "0",
+            id: jobIds[1],
+            salary: 32000,
+            title: "Janitor",
+          }
+        ]
       },
     });
   });
