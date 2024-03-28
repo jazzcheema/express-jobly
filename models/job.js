@@ -49,10 +49,64 @@ class Job {
     const job = result.rows[0];
     return job;
   }
-  
+
+  /**
+   * Takes search parameters to filter jobs
+   * Adds clauses based on optional search parameters, and returns an object
+   * Returns ->
+   * {whereClause: WHERE salary >= $1... ,
+   * searchQuery: [5000, ...] }
+   */
+  static _filterByQuery({ title, minSalary, hasEquity }) {
+    let whereStatements = [];
+    let searchQuery = [];
+    let whereClause = '';
+
+    if (title) {
+      searchQuery.push(`%${title}%`);
+      whereStatements.push(` title ILIKE $${searchQuery.length}`);
+    }
+
+    if (minSalary) {
+      searchQuery.push(minSalary);
+      whereStatements.push(` salary >= $${searchQuery.length}`);
+    }
+
+    if (hasEquity === false) {
+      whereStatements.push(` equity = 0`);
+    } else if (hasEquity === true) {
+      whereStatements.push(` equity > 0`);
+    }
+
+    if (whereStatements.length > 0) {
+      whereClause += "WHERE" + whereStatements.join(" AND ");
+    }
+    const filteredSearchObj = {
+      whereClause, searchQuery
+    };
+    return filteredSearchObj;
+  }
 
 
+  /** Find jobs.
+   *  Option to filter by query params.
+   *
+   * Returns [{ id, title, salary, equity, company_handle }, ...]
+   * */
+  static async findAll(params = {}) {
+    const { whereClause, searchQuery } = Job._filterByQuery(params);
+    const jobs = await db.query(`
+    SELECT id,
+          title,
+          salary,
+          equity,
+          company_handle AS "companyHandle"
+    FROM jobs
+    ${whereClause}
+    ORDER by company_handle, title`, searchQuery);
 
+    return jobs.rows;
+  }
 }
 
 

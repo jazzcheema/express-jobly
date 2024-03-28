@@ -57,33 +57,33 @@ class Company {
    * Adds clauses based on optional search parameters, and returns an object
    * Returns ->
    * {whereClause: WHERE num_employees >= $1... ,
-   * searchParams: [200, ...] }
+   * searchQuery: [200, ...] }
    */
   static _filterByQuery({ nameLike, minEmployees, maxEmployees }) {
     let whereStatements = [];
-    let searchParams = [];
+    let searchQuery = [];
     let whereClause = '';
 
     if (minEmployees) {
-      searchParams.push(minEmployees);
-      whereStatements.push(` num_employees >= $${searchParams.length}`);
+      searchQuery.push(minEmployees);
+      whereStatements.push(` num_employees >= $${searchQuery.length}`);
     }
 
     if (maxEmployees) {
-      searchParams.push(maxEmployees);
-      whereStatements.push(` num_employees <= $${searchParams.length}`);
+      searchQuery.push(maxEmployees);
+      whereStatements.push(` num_employees <= $${searchQuery.length}`);
     }
 
     if (nameLike) {
-      searchParams.push(`%${nameLike}%`);
-      whereStatements.push(` name ILIKE $${searchParams.length}`);
+      searchQuery.push(`%${nameLike}%`);
+      whereStatements.push(` name ILIKE $${searchQuery.length}`);
     }
 
     if (whereStatements.length > 0) {
       whereClause += "WHERE" + whereStatements.join(" AND ");
     }
     const filteredSearchObj = {
-      whereClause, searchParams
+      whereClause, searchQuery
     };
     return filteredSearchObj;
   }
@@ -96,11 +96,11 @@ class Company {
 
   static async findAll(params = {}) {
 
-    if(Number(params.minEmployees) > Number(params.maxEmployees)) {
+    if (Number(params.minEmployees) > Number(params.maxEmployees)) {
       throw new BadRequestError("minEmployees must be less than maxEmployees");
     }
 
-    const { whereClause, searchParams } = Company._filterByQuery(params);
+    const { whereClause, searchQuery } = Company._filterByQuery(params);
 
     const companiesRes = await db.query(`
         SELECT handle,
@@ -110,7 +110,7 @@ class Company {
                logo_url      AS "logoUrl"
         FROM companies
         ${whereClause}
-        ORDER BY name`, searchParams);
+        ORDER BY name`, searchQuery);
     return companiesRes.rows;
   }
 

@@ -97,7 +97,7 @@ describe("create", function () {
 /************************************** findAll */
 
 
-descibe("findAll", function () {
+describe("findAll", function () {
   test("find all jobs", async function () {
     let jobs = await Job.findAll();
     expect(jobs).toEqual([
@@ -106,18 +106,78 @@ descibe("findAll", function () {
         title: 'Janitor',
         salary: 80000,
         equity: '0',
-        company_handle: 'c1'
+        companyHandle: 'c1'
       },
       {
         id: expect.any(Number),
         title: 'CEO',
         salary: 30000,
         equity: '0.9',
-        company_handle: 'c3'
+        companyHandle: 'c3'
       }
     ]);
   });
-})
+
+  test("filter jobs by minimum salary", async function () {
+    let jobs = await Job.findAll({ minSalary: 75000 });
+    expect(jobs).toEqual([
+      {
+        id: expect.any(Number),
+        title: 'Janitor',
+        salary: 80000,
+        equity: '0',
+        companyHandle: 'c1'
+      }
+    ]);
+  });
+
+  test("filter jobs by title", async function () {
+    let jobs = await Job.findAll({ title: "CE" });
+    expect(jobs).toEqual([
+      {
+        id: expect.any(Number),
+        title: 'CEO',
+        salary: 30000,
+        equity: '0.9',
+        companyHandle: 'c3'
+      }
+    ]);
+  });
+
+  test("filter jobs by equity existence", async function () {
+    let jobs = await Job.findAll({ hasEquity: true });
+    expect(jobs).toEqual([
+      {
+        id: expect.any(Number),
+        title: 'CEO',
+        salary: 30000,
+        equity: '0.9',
+        companyHandle: 'c3'
+      }
+    ]);
+  });
+
+  test("filter jobs by salary, title, and equity", async function () {
+    let jobs = await Job.findAll({
+      title: "lmao this is not a job",
+      minSalary: 64643664,
+      hasEquity: true
+    });
+    expect(jobs).toEqual([]);
+  });
+});
+
+/************************************** find job by id */
+
+describe("get job by id", function () {
+  test("can get job by id", async function () {
+    let job = await Job.length("");
+  });
+});
+
+
+
+
 
 
 
