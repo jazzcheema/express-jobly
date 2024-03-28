@@ -46,8 +46,7 @@ function ensureLoggedIn(req, res, next) {
  *
  * If not, raises Unauthorized.
  */
-//FIXME: ensureAdmin
-function isAdmin(req, res, next) {
+function ensureIsAdmin(req, res, next) {
   if (res.locals.user?.username && res.locals.user?.isAdmin === true) {
     return next();
   }
@@ -71,6 +70,6 @@ function ensureCorrectUserOrAdmin(req, res, next) {
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
-  isAdmin,
+  ensureIsAdmin,
   ensureCorrectUserOrAdmin
 };

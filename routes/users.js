@@ -5,7 +5,7 @@
 const jsonschema = require("jsonschema");
 
 const express = require("express");
-const { isAdmin, ensureCorrectUserOrAdmin } = require("../middleware/auth");
+const { ensureIsAdmin, ensureCorrectUserOrAdmin } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
 const User = require("../models/user");
 const { createToken } = require("../helpers/tokens");
@@ -27,7 +27,7 @@ const router = express.Router();
  * Authorization required: Admin
  **/
 
-router.post("/", isAdmin, async function (req, res, next) {
+router.post("/", ensureIsAdmin, async function (req, res, next) {
   const validator = jsonschema.validate(
     req.body,
     userNewSchema,
@@ -51,7 +51,7 @@ router.post("/", isAdmin, async function (req, res, next) {
  * Authorization required: Admin
  **/
 
-router.get("/", isAdmin, async function (req, res, next) {
+router.get("/", ensureIsAdmin, async function (req, res, next) {
   const users = await User.findAll();
   return res.json({ users });
 });
