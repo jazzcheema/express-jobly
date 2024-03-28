@@ -5,7 +5,12 @@ const bcrypt = require("bcrypt");
 const db = require("../db.js");
 const { BCRYPT_WORK_FACTOR } = require("../config");
 
+let janitorId;
+let ceoId;
+
+
 async function commonBeforeAll() {
+
   // noinspection SqlWithoutWhere
   await db.query("DELETE FROM companies");
   // noinspection SqlWithoutWhere
@@ -30,14 +35,21 @@ async function commonBeforeAll() {
     await bcrypt.hash("password2", BCRYPT_WORK_FACTOR),
   ]);
 
-  await db.query(`
+  const result = await db.query(`
   INSERT INTO jobs(title,
                     salary,
                     equity,
                     company_handle)
   VALUES ('Janitor', 80000, '0', 'c1'),
-         ('CEO', 30000, 0.9, 'c3')`);
+         ('CEO', 30000, 0.9, 'c3')
+  RETURNING id`);
+  janitorId = result.rows[0].id;
+  ceoId = result.rows[1].id;
 }
+
+
+
+
 
 async function commonBeforeEach() {
   await db.query("BEGIN");
@@ -50,11 +62,13 @@ async function commonAfterEach() {
 async function commonAfterAll() {
   await db.end();
 }
-
+console.log(janitorId, "****CHECK OUTSIDE");
 
 module.exports = {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  janitorId,
+  ceoId,
 };

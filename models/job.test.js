@@ -8,6 +8,8 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  janitorId,
+  ceoId,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -26,7 +28,6 @@ update job (cannot change id): admin only
 delete job: admin only
 
 */
-
 
 
 /************************************** create job */
@@ -171,7 +172,27 @@ describe("findAll", function () {
 
 describe("get job by id", function () {
   test("can get job by id", async function () {
-    let job = await Job.length("");
+    console.log(janitorId, '**********janID');
+    let job = await Job.get(janitorId);
+    expect(job).toEqual({
+      id: expect.any(Number),
+      title: 'Janitor',
+      salary: 80000,
+      equity: '0',
+      companyHandle: 'c1'
+    });
+  });
+
+  test("cannot get non-existent job", async function () {
+    try {
+      let job = await Job.get('1000bad');
+      throw new Error('fail test on purpose');
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+      //TODO: custom error message check
+      expect(err.message).toEqual();
+    }
+
   });
 });
 
