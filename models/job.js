@@ -55,21 +55,21 @@ class Job {
    * Adds clauses based on optional search parameters, and returns an object
    * Returns ->
    * {whereClause: WHERE salary >= $1... ,
-   * searchQuery: [5000, ...] }
+   * filterValues: [5000, ...] }
    */
   static _filterByQuery({ title, minSalary, hasEquity }) {
     let whereStatements = [];
-    let searchQuery = []; //FIXME:: rename searchQuery
+    let filterValues = [];
     let whereClause = '';
 
-    if (title) {
-      searchQuery.push(`%${title}%`);
-      whereStatements.push(` title ILIKE $${searchQuery.length}`);
+    if (title !== undefined) {
+      filterValues.push(`%${title}%`);
+      whereStatements.push(` title ILIKE $${filterValues.length}`);
     }
 
-    if (minSalary) { //TODO: minsalary of 0 is falsy, use specific check for all params
-      searchQuery.push(minSalary);
-      whereStatements.push(` salary >= $${searchQuery.length}`);
+    if (minSalary !== undefined) {
+      filterValues.push(minSalary);
+      whereStatements.push(` salary >= $${filterValues.length}`);
     }
 
     if (hasEquity === false) {
@@ -82,19 +82,22 @@ class Job {
       whereClause += "WHERE" + whereStatements.join(" AND ");
     }
     const filteredSearchObj = {
-      whereClause, searchQuery
+      whereClause, filterValues
     };
     return filteredSearchObj;
   }
 
 
   /** Find jobs.
-   *  Option to filter by query params. FIXME: use example input
+   *  Option to filter by query params.
+   *
+   * Input for filter search:
+   * {title: "Janitor", minSalary: 10000, hasEquity: False}
    *
    * Returns [{ id, title, salary, equity, company_handle }, ...]
    * */
   static async findAll(params = {}) {
-    const { whereClause, searchQuery } = Job._filterByQuery(params);
+    const { whereClause, filterValues } = Job._filterByQuery(params);
     const jobs = await db.query(`
     SELECT id,
           title,
@@ -103,7 +106,7 @@ class Job {
           company_handle AS "companyHandle"
     FROM jobs
     ${whereClause}
-    ORDER by company_handle, title`, searchQuery);
+    ORDER by company_handle, title`, filterValues);
 
     return jobs.rows;
   }
@@ -169,9 +172,9 @@ class Job {
     return job;
   }
 
-  /** Delete given company from database; returns undefined.
+  /** Delete given job from database; returns id.
    *
-   * Throws NotFoundError if company not found.
+   * Throws NotFoundError if job not found.
    **/
 
   static async remove(id) {
