@@ -11,7 +11,6 @@ const User = require("../models/user");
 const { createToken } = require("../helpers/tokens");
 const userNewSchema = require("../schemas/userNew.json");
 const userUpdateSchema = require("../schemas/userUpdate.json");
-const jobApplySchema = require("../schemas/jobApply.json");
 
 const router = express.Router();
 
@@ -110,22 +109,13 @@ router.delete("/:username", ensureCorrectUserOrAdmin, async function (req, res, 
 
 
 /** Apply to Job.
- * 
+ *
  * POST /[username, jobId]  =>  { applied: jobId }
  *
  * Authorization required: Correct user or Admin
  **/
 
 router.post("/:username/jobs/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
-  const validator = jsonschema.validate(
-    req.params, jobApplySchema,
-    { required: true },
-  );
-  if (!validator.valid) {
-    const errs = validator.errors.map(e => e.stack);
-    throw new BadRequestError(errs);
-  }
-
   const application = await User.applyToJob(req.params.username, req.params.id);
   return res.json({ applied: application.jobId });
 });
