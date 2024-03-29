@@ -43,6 +43,11 @@ async function commonBeforeAll() {
   RETURNING id`);
   jobIds.push(result.rows[0].id);
   jobIds.push(result.rows[1].id);
+
+  await db.query(`
+    INSERT INTO applications(username,
+                             job_id)
+    VALUES ('u1', ${jobIds[0]})`);
 }
 
 
