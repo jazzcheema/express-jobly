@@ -13,7 +13,8 @@ const {
   commonAfterEach,
   commonAfterAll,
   adminToken,
-  userToken
+  userToken,
+  jobIds
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -397,5 +398,169 @@ describe("DELETE /users/:username", function () {
       }
     });
   });
+
+});
+
+
+/******************************************************* POST apply to a job */
+
+
+describe("POST /users/:username/jobs/:id", function () {
+  test("can apply to job as an admin for self", async function () {
+    const resp = await request(app)
+      .post(`/users/u1/jobs/${jobIds[1]}`)
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.statusCode).toEqual(201);
+    expect(resp.body).toEqual({
+      applied: jobIds[1]
+    });
+  });
+
+  test("can apply to job as an admin for other user", async function () {
+    const resp = await request(app)
+      .post(`/users/u2/jobs/${jobIds[1]}`)
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.statusCode).toEqual(201);
+    expect(resp.body).toEqual({
+      applied: jobIds[1]
+    });
+  });
+
+  test("can apply to job as a user (non-admin) for self", async function () {
+    const resp = await request(app)
+      .post(`/users/u2/jobs/${jobIds[1]}`)
+      .set("authorization", `Bearer ${userToken}`);
+    expect(resp.statusCode).toEqual(201);
+    expect(resp.body).toEqual({
+      applied: jobIds[1]
+    });
+  });
+
+  test("Unauth for anon (not logged in)", async function () {
+    const resp = await request(app)
+      .post(`/users/u2/jobs/${jobIds[1]}`);
+    expect(resp.statusCode).toEqual(401);
+    expect(resp.body).toEqual({
+      error: {
+        "message": "Unauthorized",
+        "status": 401,
+      }
+    });
+  });
+
+  test("Unauth for user (non-admin) applying for not self", async function () {
+    const resp = await request(app)
+      .post(`/users/u1/jobs/${jobIds[1]}`)
+      .set("authorization", `Bearer ${userToken}`);
+    expect(resp.statusCode).toEqual(401);
+    expect(resp.body).toEqual({
+      error: {
+        "message": "Unauthorized",
+        "status": 401,
+      }
+    });
+  });
+
+  test("Not found for non-existent job as admin", async function () {
+    const resp = await request(app)
+      .post(`/users/u1/jobs/0`)
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.statusCode).toEqual(404);
+    expect(resp.body).toEqual({
+      error: {
+        "message": "No job: 0",
+        "status": 404
+      }
+    });
+  });
+
+  test("Not found for non-existent job as user (non-admin) applying for self", async function () {
+    const resp = await request(app)
+      .post(`/users/u2/jobs/0`)
+      .set("authorization", `Bearer ${userToken}`);
+    expect(resp.statusCode).toEqual(404);
+    expect(resp.body).toEqual({
+      error: {
+        "message": "No job: 0",
+        "status": 404
+      }
+    });
+  });
+
+  test("Not found for non-existent user as admin", async function () {
+    const resp = await request(app)
+      .post(`/users/lmfao/jobs/{${jobIds[0]}}`)
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.statusCode).toEqual(404);
+    expect(resp.body).toEqual({
+      error: {
+        "message": "No user: lmfao",
+        "status": 404
+      }
+    });
+  });
+
+  test("Unauth for non-existent user as user (non-admin)", async function () {
+    const resp = await request(app)
+      .post(`/users/bro/jobs/${jobIds[0]}`)
+      .set("authorization", `Bearer ${userToken}`);
+    expect(resp.statusCode).toEqual(401);
+    expect(resp.body).toEqual({
+      error: {
+        "message": "Unauthorized",
+        "status": 401,
+      }
+    });
+  });
+
+  test("Unauth for non-existent user as user (non-admin)", async function () {
+    const resp = await request(app)
+      .post(`/users/lmfao/jobs/${jobIds[0]}`)
+      .set("authorization", `Bearer ${userToken}`);
+    expect(resp.statusCode).toEqual(401);
+    expect(resp.body).toEqual({
+      error: {
+        "message": "Unauthorized",
+        "status": 401,
+      }
+    });
+  });
+
+  test("Unauth for non-existent job as user (non-admin) trying to apply for not self", async function () {
+    const resp = await request(app)
+      .post(`/users/u1/jobs/0`)
+      .set("authorization", `Bearer ${userToken}`);
+    expect(resp.statusCode).toEqual(401);
+    expect(resp.body).toEqual({
+      error: {
+        "message": "Unauthorized",
+        "status": 401,
+      }
+    });
+  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 });

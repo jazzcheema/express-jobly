@@ -135,7 +135,6 @@ describe("findAll", function () {
 describe("get", function () {
   test("works", async function () {
     let user = await User.get("u1");
-    console.log(user, '*****');
     expect(user).toEqual({
       username: "u1",
       firstName: "U1F",
@@ -242,11 +241,11 @@ describe("apply", function () {
     const res = await User.applyToJob("u1", jobIds[1]);
     expect(res).toEqual({ jobId: jobIds[1] });
   });
-  //FIXME: ERROR BELOW
+
   test("throws not found error for no job found", async function () {
     try {
+      console.log(jobIds);
       const res = await User.applyToJob("u1", 0);
-      console.log(res, "res******");
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
@@ -262,7 +261,7 @@ describe("apply", function () {
     }
   });
 
-})
+});
 
 
 
