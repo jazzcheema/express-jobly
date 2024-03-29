@@ -56,7 +56,7 @@ class User {
    **/
 
   static async register(
-      { username, password, firstName, lastName, email, isAdmin }) {
+    { username, password, firstName, lastName, email, isAdmin }) {
     const duplicateCheck = await db.query(`
         SELECT username
         FROM users
@@ -84,13 +84,13 @@ class User {
                     last_name AS "lastName",
                     email,
                     is_admin AS "isAdmin"`, [
-          username,
-          hashedPassword,
-          firstName,
-          lastName,
-          email,
-          isAdmin,
-        ],
+      username,
+      hashedPassword,
+      firstName,
+      lastName,
+      email,
+      isAdmin,
+    ],
     );
 
     const user = result.rows[0];
@@ -143,6 +143,9 @@ class User {
     return user;
   }
 
+
+
+
   /** Update user data with `data`.
    *
    * This is a "partial update" --- it's fine if data doesn't contain
@@ -166,12 +169,12 @@ class User {
     }
 
     const { setCols, values } = sqlForPartialUpdate(
-        data,
-        {
-          firstName: "first_name",
-          lastName: "last_name",
-          isAdmin: "is_admin",
-        });
+      data,
+      {
+        firstName: "first_name",
+        lastName: "last_name",
+        isAdmin: "is_admin",
+      });
     const usernameVarIdx = "$" + (values.length + 1);
 
     const querySql = `
@@ -205,7 +208,43 @@ class User {
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
   }
+
+
+  /** User can apply to a job.
+   * Takes in username and jobId
+   * Returns {applied: jobId}
+   */
+  static async applyToJob(username, jobId) {
+    const userRes = await db.query(`
+        SELECT username
+        FROM users
+        WHERE username = $1`, [username],
+    );
+
+    const user = userRes.rows[0];
+
+    if (!user) throw new NotFoundError(`No user: ${username}`);
+
+    const jobRes = await db.query(`
+        SELECT id
+        FROM jobs
+        WHERE id = $1`, [jobId]);
+
+    const job = jobRes.rows[0];
+    if (!job) throw new NotFoundError(`No job: ${id}`);
+
+
+    const appRes = await db.query(`
+        INSERT into applications (username,
+                                  job_id)
+        VALUES ($1, $2)
+        RETURNING job_id as "jobId"`,
+      [username, jobId],
+    );
+    const application = appRes.rows[0];
+    return application;
+  }
 }
 
 
-module.exports = User;
+module.exports = User;;
