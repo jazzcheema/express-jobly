@@ -83,7 +83,7 @@ describe("POST /jobs", function () {
         status: 401
       }
     });
-  });
+  }); //TODO: try to be specific with "does not work"
 
   test("does not work with invalid data", async function () {
     const resp = await request(app)
@@ -200,8 +200,106 @@ describe("GET /jobs", function () {
         },
       ],
     });
+  }); //TODO: this is a dupe *
+  test("test min salary filter", async function () {
+    const resp = await request(app)
+      .get("/jobs")
+      .query({ minSalary: 80000 })
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual({
+      jobs: [
+        {
+          id: jobIds[0],
+          title: "Cow Herder",
+          salary: 95000,
+          equity: "0.15",
+          companyHandle: "c1"
+        },
+        {
+          id: jobIds[2],
+          title: "CEO",
+          salary: 729000,
+          equity: "0.9",
+          companyHandle: "c3"
+        },
+      ],
+    });
   });
+
+  test("test filter hasEquity true", async function () {
+    const resp = await request(app)
+      .get("/jobs")
+      .query({ hasEquity: true })
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual({
+      jobs: [
+        {
+          id: jobIds[0],
+          title: "Cow Herder",
+          salary: 95000,
+          equity: "0.15",
+          companyHandle: "c1"
+        },
+        {
+          id: jobIds[2],
+          title: "CEO",
+          salary: 729000,
+          equity: "0.9",
+          companyHandle: "c3"
+        },
+      ],
+    });
+  });
+
+  test("test filter hasEquity false", async function () {
+    const resp = await request(app)
+      .get("/jobs")
+      .query({ hasEquity: "False" })
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual({
+      jobs: [
+        {
+          id: jobIds[1],
+          title: "Janitor",
+          salary: 32000,
+          equity: "0",
+          companyHandle: "c2"
+        }
+      ],
+    });
+  });
+
+  test("test bad filter data", async function () {
+    const resp = await request(app)
+      .get("/jobs")
+      .query({ hasInsurance: true })
+      .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.status).toEqual(400);
+  });
+
+  //FIXME: we dont need to be an admin for this route
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 });
+
+
 
 /**********************************************************GET /jobs/:id */
 
@@ -315,6 +413,8 @@ describe("PATCH /jobs/:id", function () {
     });
   });
 
+  //TODO: we want to test a non-admin trying to edit a non-existent job
+
   test("cannot edit job with bad data", async function () {
     const resp = await request(app)
       .patch(`/jobs/0`)
@@ -336,7 +436,7 @@ describe("DELETE /jobs/:id", function () {
       .delete(`/jobs/${jobIds[0]}`)
       .set("authorization", `Bearer ${adminToken}`);
     expect(resp.body).toEqual({
-      deleted: `${jobIds[0]}`
+      deleted: jobIds[0]
     });
   });
 
@@ -377,4 +477,6 @@ describe("DELETE /jobs/:id", function () {
     });
   });
 });
+
+//TODO: be more specific with test descriptions
 

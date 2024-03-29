@@ -60,7 +60,7 @@ router.get("/", async function (req, res, next) {
   if (queries.minSalary) {
     queries.minSalary = Number(queries.minSalary);
   }
-  if (queries.hasEquity) {
+  if (queries.hasEquity !== undefined) {
     if (queries.hasEquity.toLowerCase() === "true") {
       queries.hasEquity = true;
     } else if (queries.hasEquity.toLowerCase() === "false") {
@@ -68,7 +68,7 @@ router.get("/", async function (req, res, next) {
     }
   }
 
-
+  // queries.hasEquity = queries.hasEquity === "true"; from solution
 
   const result = jsonschema.validate(queries, jobSearchSchema, { required: true });
 
@@ -131,7 +131,7 @@ router.patch("/:id", ensureIsAdmin, async function (req, res, next) {
 
 router.delete("/:id", ensureIsAdmin, async function (req, res, next) {
   await Job.remove(req.params.id);
-  return res.json({ deleted: req.params.id });
+  return res.json({ deleted: Number(req.params.id) });
 });
 
 

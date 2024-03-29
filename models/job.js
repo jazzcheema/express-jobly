@@ -59,7 +59,7 @@ class Job {
    */
   static _filterByQuery({ title, minSalary, hasEquity }) {
     let whereStatements = [];
-    let searchQuery = [];
+    let searchQuery = []; //FIXME:: rename searchQuery
     let whereClause = '';
 
     if (title) {
@@ -67,7 +67,7 @@ class Job {
       whereStatements.push(` title ILIKE $${searchQuery.length}`);
     }
 
-    if (minSalary) {
+    if (minSalary) { //TODO: minsalary of 0 is falsy, use specific check for all params
       searchQuery.push(minSalary);
       whereStatements.push(` salary >= $${searchQuery.length}`);
     }
@@ -89,7 +89,7 @@ class Job {
 
 
   /** Find jobs.
-   *  Option to filter by query params.
+   *  Option to filter by query params. FIXME: use example input
    *
    * Returns [{ id, title, salary, equity, company_handle }, ...]
    * */

@@ -144,7 +144,7 @@ describe("findAll", function () {
     ]);
   });
 
-  test("filter jobs by equity existence", async function () {
+  test("filter jobs by equity true", async function () {
     let jobs = await Job.findAll({ hasEquity: true });
     expect(jobs).toEqual([
       {
@@ -153,6 +153,19 @@ describe("findAll", function () {
         salary: 30000,
         equity: '0.9',
         companyHandle: 'c3'
+      }
+    ]);
+  });
+
+  test("filter jobs by equity false", async function () {
+    let jobs = await Job.findAll({ hasEquity: false });
+    expect(jobs).toEqual([
+      {
+        id: expect.any(Number),
+        title: 'Janitor',
+        salary: 80000,
+        equity: '0',
+        companyHandle: 'c1'
       }
     ]);
   });

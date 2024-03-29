@@ -7,7 +7,6 @@ const { BCRYPT_WORK_FACTOR } = require("../config");
 
 const jobIds = [];
 
-
 async function commonBeforeAll() {
 
   // noinspection SqlWithoutWhere
